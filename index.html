@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>5+ Wine & Food</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF7F2;
+    --warm-white: #FFF9F4;
+    --terracotta: #C4633A;
+    --blush: #F2DDD6;
+    --sage: #7A9E8E;
+    --charcoal: #2C2420;
+    --brown: #5C3D2E;
+    --text-mid: #7A6358;
+    --text-light: #B09A90;
+    --border: #EAE0D8;
+    --card-bg: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: #E8DDD5;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; font-family: 'DM Sans', sans-serif; padding: 24px 0;
+  }
+  .phone {
+    width: 390px; height: 844px;
+    background: var(--cream); border-radius: 50px; overflow: hidden;
+    position: relative;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.6), inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .screen {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none; transition: opacity 0.35s ease; background: var(--cream);
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+  .scroll-area { flex: 1; overflow-y: auto; scrollbar-width: none; }
+  .scroll-area::-webkit-scrollbar { display: none; }
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 28px 0; font-size: 12px; font-weight: 600; color: var(--text-mid); flex-shrink: 0;
+  }
+  .nav-bar {
+    display: flex; justify-content: space-around;
+    padding: 10px 0 22px; border-top: 1px solid var(--border);
+    background: var(--warm-white); flex-shrink: 0;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; opacity: 0.35; transition: opacity 0.2s; padding: 4px 14px;
+  }
+  .nav-item.active { opacity: 1; }
+  .nav-item svg { width: 22px; height: 22px; stroke: var(--terracotta); }
+  .nav-item span { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--terracotta); }
+
+  /* ===== HOME ===== */
+  #home .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 24px 0; flex-shrink: 0;
+  }
+  .logo { font-family: 'Lora', serif; font-size: 20px; font-weight: 600; color: var(--charcoal); }
+  .logo span { color: var(--terracotta); }
+  .avatar { width: 34px; height: 34px; background: var(--blush); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+
+  /* Search bar */
+  .search-bar-wrap { padding: 14px 24px 0; flex-shrink: 0; }
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 18px; padding: 11px 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    cursor: text;
+  }
+  .search-icon { color: var(--text-light); flex-shrink: 0; }
+  .search-icon svg { width: 18px; height: 18px; stroke: var(--text-light); }
+  .search-placeholder { flex: 1; font-size: 13px; font-weight: 400; color: var(--text-light); }
+  .search-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+  .camera-btn {
+    width: 34px; height: 34px; border-radius: 12px;
+    background: var(--terracotta); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; transition: transform 0.15s;
+  }
+  .camera-btn:active { transform: scale(0.93); }
+  .camera-btn svg { width: 17px; height: 17px; stroke: #fff; }
+
+  /* Scan CTA strip */
+  .scan-cta {
+    margin: 10px 24px 0;
+    background: var(--terracotta);
+    border-radius: 20px; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: transform 0.15s;
+    box-shadow: 0 6px 24px rgba(196,99,58,0.28);
+    position: relative; overflow: hidden;
+  }
+  .scan-cta:active { transform: scale(0.98); }
+  .scan-cta-blob { position: absolute; right: -16px; top: -24px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.07); }
+  .scan-cta-left {}
+  .scan-cta-eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+  .scan-cta-title { font-family: 'Lora', serif; font-size: 19px; font-weight: 500; color: #fff; line-height: 1.2; }
+  .scan-cta-modes { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .scan-cta-mode { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 10px; font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.9); }
+  .scan-cta-arrow {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; flex-shrink: 0;
+  }
+
+  /* Food pairing section */
+  .food-section { padding: 20px 24px 0; }
+  .food-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .food-section-title { font-family: 'Lora', serif; font-size: 19px; font-weight: 500; color: var(--charcoal); }
+  .food-section-sub { font-size: 11px; font-weight: 600; color: var(--terracotta); cursor: pointer; }
+  .food-prompt {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+    transition: transform 0.15s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .food-prompt:active { transform: scale(0.98); }
+  .food-prompt-emoji { font-size: 36px; flex-shrink: 0; }
+  .food-prompt-text {}
+  .food-prompt-q { font-family: 'Lora', serif; font-size: 16px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; line-height: 1.3; }
+  .food-prompt-hint { font-size: 12px; font-weight: 400; color: var(--text-light); line-height: 1.4; }
+  .food-chips { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .food-chips::-webkit-scrollbar { display: none; }
+  .food-chip {
+    flex-shrink: 0; background: var(--warm-white); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 8px 14px;
+    font-size: 12px; font-weight: 500; color: var(--charcoal);
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .food-chip:active { background: var(--blush); border-color: var(--terracotta); }
+
+  /* Recently scanned — compact */
+  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 10px; }
+  .section-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 500; color: var(--charcoal); }
+  .section-link { font-size: 11px; font-weight: 600; color: var(--terracotta); cursor: pointer; }
+  .recent-wines { display: flex; flex-direction: column; gap: 8px; padding: 0 24px; }
+  .recent-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 16px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .recent-card:active { transform: scale(0.98); }
+  .rc-color { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .rc-red{background:#FCEEE9;} .rc-white{background:#FBF6E2;} .rc-rose{background:#FCE8EC;}
+  .rc-info { flex: 1; }
+  .rc-name { font-size: 13px; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; }
+  .rc-sub { font-size: 11px; font-weight: 400; color: var(--text-light); }
+  .rc-score { font-family: 'Lora', serif; font-size: 19px; font-weight: 600; color: var(--terracotta); }
+
+  /* ===== SCAN ===== */
+  #scan .scan-top { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; flex-shrink: 0; }
+  .back-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--charcoal); font-size: 18px; }
+  .screen-title { font-family: 'Lora', serif; font-size: 20px; font-weight: 500; color: var(--charcoal); }
+  .scan-mode-pills { display: flex; gap: 8px; padding: 16px 24px 0; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+  .scan-mode-pills::-webkit-scrollbar { display: none; }
+  .mode-pill { flex-shrink: 0; padding: 9px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text-mid); transition: all 0.2s; }
+  .mode-pill.active { background: var(--terracotta); border-color: var(--terracotta); color: #fff; }
+  .vf-wrap { margin: 16px 24px 0; flex-shrink: 0; }
+  .viewfinder { height: 300px; border-radius: 28px; position: relative; overflow: hidden; background: #1C1008; }
+  .vf-inner-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #3A1A08 0%, #1C1008 70%); }
+  .vf-overlay-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+  .vf-ring { width: 80px; height: 80px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; animation: breathe 2.5s ease-in-out infinite; }
+  .vf-ring-inner { width: 56px; height: 56px; border-radius: 50%; background: rgba(196,99,58,0.3); border: 2px solid rgba(196,99,58,0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  @keyframes breathe { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(196,99,58,0.2);}50%{transform:scale(1.04);box-shadow:0 0 0 14px rgba(196,99,58,0);} }
+  .vf-scan-line { position: absolute; left: 24px; right: 24px; height: 1.5px; background: linear-gradient(90deg,transparent,rgba(196,99,58,0.8),transparent); animation: sweep 2.8s ease-in-out infinite; box-shadow: 0 0 10px rgba(196,99,58,0.5); }
+  @keyframes sweep { 0%{top:16px;opacity:0;}8%{opacity:1;}92%{opacity:1;}100%{top:calc(100% - 18px);opacity:0;} }
+  .vf-guide-text { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.55); text-align: center; line-height: 1.6; max-width: 200px; }
+  .vf-guide-text strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+  .mode-info { margin: 12px 24px 0; background: var(--blush); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .mode-info-text { font-size: 12px; font-weight: 400; color: var(--brown); line-height: 1.5; }
+  .mode-info-text strong { font-weight: 600; }
+  .shutter-wrap { display: flex; justify-content: center; align-items: center; gap: 40px; padding: 18px 0 0; flex-shrink: 0; }
+  .gallery-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
+  .shutter { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--terracotta); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; }
+  .shutter:active { transform: scale(0.92); }
+  .shutter-inner { width: 54px; height: 54px; border-radius: 50%; background: var(--terracotta); }
+
+  /* ===== RESULT ===== */
+  #result .result-top { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; flex-shrink: 0; }
+  .result-friend-box { margin: 16px 24px 0; background: var(--sage); border-radius: 24px; padding: 18px 20px; flex-shrink: 0; }
+  .rfb-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
+  .rfb-text { font-family: 'Lora', serif; font-size: 16px; font-style: italic; font-weight: 400; color: #fff; line-height: 1.55; }
+  .result-wine-card { margin: 12px 24px 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 20px; }
+  .rwc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+  .rwc-badge { display: inline-block; background: var(--blush); color: var(--terracotta); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; }
+  .rwc-name { font-family: 'Lora', serif; font-size: 22px; font-weight: 500; color: var(--charcoal); line-height: 1.2; margin-bottom: 4px; }
+  .rwc-meta { font-size: 12px; font-weight: 400; color: var(--text-light); }
+  .rwc-score-pill { background: var(--terracotta); color: #fff; border-radius: 16px; padding: 8px 14px; text-align: center; flex-shrink: 0; }
+  .rwc-score-num { font-family: 'Lora', serif; font-size: 28px; font-weight: 600; line-height: 1; }
+  .rwc-score-lbl { font-size: 8px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; margin-top: 2px; }
+  .rwc-divider { height: 1px; background: var(--border); margin: 14px 0; }
+  .rwc-sources { display: flex; gap: 8px; }
+  .source-chip { flex: 1; background: var(--cream); border-radius: 12px; padding: 10px 8px; text-align: center; }
+  .source-num { font-family: 'Lora', serif; font-size: 18px; font-weight: 600; color: var(--charcoal); line-height: 1; margin-bottom: 3px; }
+  .source-name { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; color: var(--text-light); text-transform: uppercase; }
+  .result-section { margin: 12px 24px 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 20px; }
+  .rs-title { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; }
+  .rs-desc { font-family: 'Lora', serif; font-size: 15px; font-style: italic; color: var(--charcoal); line-height: 1.65; }
+  .rs-plain { font-size: 13px; font-weight: 400; color: var(--text-mid); line-height: 1.6; }
+  .pairing-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pchip { background: var(--cream); border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 12px; font-weight: 500; color: var(--charcoal); display: flex; align-items: center; gap: 6px; }
+  .result-save { margin: 16px 24px 0; background: var(--terracotta); border-radius: 20px; padding: 17px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; color: #fff; transition: transform 0.15s; box-shadow: 0 6px 24px rgba(196,99,58,0.3); }
+  .result-save:active { transform: scale(0.98); }
+
+  /* ===== FAVORITES ===== */
+  #favorites .fav-top { padding: 20px 24px 0; flex-shrink: 0; }
+  .fav-heading { font-family: 'Lora', serif; font-size: 28px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; }
+  .fav-sub { font-size: 13px; font-weight: 400; color: var(--text-light); }
+  .fav-stats { display: flex; gap: 10px; padding: 16px 24px 0; flex-shrink: 0; }
+  .cstat { flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 14px; text-align: center; }
+  .cstat-num { font-family: 'Lora', serif; font-size: 24px; font-weight: 600; color: var(--charcoal); line-height: 1; margin-bottom: 4px; }
+  .cstat-lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+  .fav-list { flex: 1; overflow-y: auto; padding: 16px 24px 8px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
+  .fav-list::-webkit-scrollbar { display: none; }
+  .fav-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .cc-icon { width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .cc-red{background:#FCEEE9;} .cc-white{background:#FBF6E2;} .cc-rose{background:#FCE8EC;}
+  .cc-info { flex: 1; }
+  .cc-name { font-family: 'Lora', serif; font-size: 15px; font-weight: 500; color: var(--charcoal); margin-bottom: 3px; line-height: 1.3; }
+  .cc-meta { font-size: 11px; color: var(--text-light); }
+  .cc-right { text-align: right; flex-shrink: 0; }
+  .cc-score { font-family: 'Lora', serif; font-size: 20px; font-weight: 600; color: var(--terracotta); line-height: 1; margin-bottom: 3px; }
+  .cc-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sage); background: #EFF6F3; border-radius: 6px; padding: 2px 6px; display: inline-block; }
+
+  /* ===== LEARN ===== */
+  #learn .learn-top { padding: 20px 24px 0; flex-shrink: 0; }
+  .learn-heading { font-family: 'Lora', serif; font-size: 28px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; }
+  .learn-sub { font-size: 13px; color: var(--text-light); }
+  .learn-cards { flex: 1; overflow-y: auto; padding: 16px 24px 12px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
+  .learn-cards::-webkit-scrollbar { display: none; }
+  .learn-card { border-radius: 24px; overflow: hidden; cursor: pointer; transition: transform 0.15s; }
+  .learn-card:active { transform: scale(0.98); }
+  .lc-inner { padding: 22px; position: relative; }
+  .lc-inner.red-bg{background:#FCEEE9;} .lc-inner.sage-bg{background:#EFF6F3;} .lc-inner.gold-bg{background:#FBF6E2;} .lc-inner.blue-bg{background:#EBF0F8;}
+  .lc-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-mid); margin-bottom: 8px; }
+  .lc-question { font-family: 'Lora', serif; font-size: 18px; font-weight: 500; color: var(--charcoal); line-height: 1.35; margin-bottom: 8px; }
+  .lc-preview { font-size: 13px; font-weight: 400; color: var(--text-mid); line-height: 1.5; }
+  .lc-emoji { position: absolute; top: 20px; right: 20px; font-size: 32px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- =========== HOME =========== -->
+  <div class="screen active" id="home">
+    <div class="status-bar">
+      <span>9:41</span><span style="letter-spacing:3px">&#9679;&#9679;&#9679;</span><span>100%</span>
+    </div>
+    <div class="top-bar">
+      <div class="logo">5<span>+</span> Wine &amp; Food</div>
+      <div class="avatar">&#128075;</div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-bar-wrap">
+      <div class="search-bar">
+        <div class="search-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <div class="search-placeholder">Search wine, food, wineries...</div>
+        <div class="search-divider"></div>
+        <div class="camera-btn" onclick="showScreen('scan')">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan CTA -->
+    <div class="scan-cta" onclick="showScreen('scan')">
+      <div class="scan-cta-blob"></div>
+      <div class="scan-cta-left">
+        <div class="scan-cta-eyebrow">Point. Scan. Know.</div>
+        <div class="scan-cta-title">Scan any wine — instantly.</div>
+        <div class="scan-cta-modes">
+          <div class="scan-cta-mode">&#129863; Bottle</div>
+          <div class="scan-cta-mode">&#128218; Wine List</div>
+          <div class="scan-cta-mode">&#127928; Collection</div>
+        </div>
+      </div>
+      <div class="scan-cta-arrow">&#8594;</div>
+    </div>
+
+    <div class="scroll-area">
+      <!-- Food pairing section -->
+      <div class="food-section">
+        <div class="food-section-header">
+          <div class="food-section-title">What are you eating?</div>
+          <div class="food-section-sub">See pairings</div>
+        </div>
+        <div class="food-prompt">
+          <div class="food-prompt-emoji">&#127869;</div>
+          <div class="food-prompt-text">
+            <div class="food-prompt-q">Tell us what's on your plate</div>
+            <div class="food-prompt-hint">We'll find the perfect wine to go with it.</div>
+          </div>
+        </div>
+        <div class="food-chips">
+          <div class="food-chip">&#129385; Steak</div>
+          <div class="food-chip">&#127829; Lamb</div>
+          <div class="food-chip">&#127960; Pasta</div>
+          <div class="food-chip">&#129363; Roast Chicken</div>
+          <div class="food-chip">&#127843; Salmon</div>
+          <div class="food-chip">&#127812; Mushrooms</div>
+        </div>
+      </div>
+
+      <!-- Recently scanned — compact -->
+      <div class="section-header">
+        <div class="section-title">Recently Scanned</div>
+        <div class="section-link" onclick="showScreen('favorites')">See Favorites</div>
+      </div>
+      <div class="recent-wines">
+        <div class="recent-card" onclick="showResult('Caymus Cabernet Sauvignon','Napa Valley, CA · 2021','93','91','92','Single Bottle','Great choice for a dinner party — rich and crowd-pleasing without being too fancy or too cheap. Pair it with red meat and you\'re set.')">
+          <div class="rc-color rc-red">&#127863;</div>
+          <div class="rc-info"><div class="rc-name">Caymus Cabernet</div><div class="rc-sub">Napa Valley · 2021 · Red</div></div>
+          <div class="rc-score">93</div>
+        </div>
+        <div class="recent-card" onclick="showResult('Whispering Angel Rosé','Provence, France · 2022','91','90','89','Single Bottle','The go-to rosé for a reason — dry, refreshing, and pretty. Perfect for a summer afternoon or as an aperitif before dinner.')">
+          <div class="rc-color rc-rose">&#127863;</div>
+          <div class="rc-info"><div class="rc-name">Whispering Angel Rosé</div><div class="rc-sub">Provence · 2022 · Rosé</div></div>
+          <div class="rc-score">91</div>
+        </div>
+        <div class="recent-card" onclick="showResult('Kim Crawford Sauvignon Blanc','Marlborough, NZ · 2023','89','88','90','Single Bottle','Bright, citrusy, and easy-drinking. One of the best value whites you can buy — great for a weeknight or a big group.')">
+          <div class="rc-color rc-white">&#127863;</div>
+          <div class="rc-info"><div class="rc-name">Kim Crawford SB</div><div class="rc-sub">Marlborough · 2023 · White</div></div>
+          <div class="rc-score">89</div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-item active" onclick="nav('home',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
+      </div>
+      <div class="nav-item" onclick="nav('scan',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="4"/></svg><span>Scan</span>
+      </div>
+      <div class="nav-item" onclick="nav('favorites',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>Favorites</span>
+      </div>
+      <div class="nav-item" onclick="nav('learn',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>Learn</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== SCAN =========== -->
+  <div class="screen" id="scan">
+    <div class="status-bar"><span>9:41</span><span style="letter-spacing:3px">&#9679;&#9679;&#9679;</span><span>100%</span></div>
+    <div class="scan-top">
+      <div class="back-btn" onclick="showScreen('home')">&#8592;</div>
+      <div class="screen-title">Scan Wine</div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="scan-mode-pills">
+      <div class="mode-pill active" onclick="setMode(this,'single')">&#129863; Single Bottle</div>
+      <div class="mode-pill" onclick="setMode(this,'collection')">&#127928; Collection</div>
+      <div class="mode-pill" onclick="setMode(this,'list')">&#128203; Wine List</div>
+    </div>
+    <div class="vf-wrap">
+      <div class="viewfinder">
+        <div class="vf-inner-bg"></div>
+        <div class="vf-scan-line"></div>
+        <div class="vf-overlay-text">
+          <div class="vf-ring"><div class="vf-ring-inner">&#127863;</div></div>
+          <div class="vf-guide-text" id="vf-hint">Point at a <strong>wine label</strong><br>and tap the button below</div>
+        </div>
+      </div>
+    </div>
+    <div class="mode-info">
+      <div class="mode-info-icon" id="mode-icon">&#129863;</div>
+      <div class="mode-info-text" id="mode-info-text"><strong>Single bottle:</strong> Point at one label to get ratings, tasting notes, and food pairings.</div>
+    </div>
+    <div class="shutter-wrap">
+      <div class="gallery-btn">&#128444;</div>
+      <div class="shutter" onclick="showResult('Opus One 2019','Napa Valley, CA · 2019','97','96','95','Single Bottle','This is a special-occasion wine. Rich, complex, unforgettable — the kind you open when something good happens. Save it for a real moment.')">
+        <div class="shutter-inner"></div>
+      </div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="nav-bar">
+      <div class="nav-item" onclick="nav('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item active" onclick="nav('scan',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="4"/></svg><span>Scan</span></div>
+      <div class="nav-item" onclick="nav('favorites',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>Favorites</span></div>
+      <div class="nav-item" onclick="nav('learn',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>Learn</span></div>
+    </div>
+  </div>
+
+  <!-- =========== RESULT =========== -->
+  <div class="screen" id="result">
+    <div class="status-bar"><span>9:41</span><span style="letter-spacing:3px">&#9679;&#9679;&#9679;</span><span>100%</span></div>
+    <div class="result-top">
+      <div class="back-btn" onclick="showScreen('scan')">&#8592;</div>
+      <div class="screen-title">Wine Found</div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="result-friend-box">
+        <div class="rfb-label">&#128172; Friend's Take</div>
+        <div class="rfb-text" id="friend-text">"Save this one for a special moment."</div>
+      </div>
+      <div class="result-wine-card">
+        <div class="rwc-top">
+          <div>
+            <div class="rwc-badge" id="result-badge">Single Bottle</div>
+            <div class="rwc-name" id="result-name">Opus One 2019</div>
+            <div class="rwc-meta" id="result-meta">Napa Valley · Cabernet Blend</div>
+          </div>
+          <div class="rwc-score-pill">
+            <div class="rwc-score-num" id="result-score">96</div>
+            <div class="rwc-score-lbl">Overall</div>
+          </div>
+        </div>
+        <div class="rwc-divider"></div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px;">Consolidated from</div>
+        <div class="rwc-sources">
+          <div class="source-chip"><div class="source-num" id="src1">97</div><div class="source-name">Spectator</div></div>
+          <div class="source-chip"><div class="source-num" id="src2">96</div><div class="source-name">Parker</div></div>
+          <div class="source-chip"><div class="source-num" id="src3">95</div><div class="source-name">Vinous</div></div>
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="rs-title">What It Tastes Like</div>
+        <div class="rs-desc">"Dark fruit, a hint of cedar, velvety smooth. Rich but not heavy — the kind of wine you notice without overthinking it."</div>
+      </div>
+      <div class="result-section">
+        <div class="rs-title">Goes Great With</div>
+        <div class="pairing-chips">
+          <div class="pchip">&#129385; Grilled Steak</div>
+          <div class="pchip">&#127829; Lamb Chops</div>
+          <div class="pchip">&#127862; Aged Cheese</div>
+          <div class="pchip">&#127812; Mushroom Pasta</div>
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="rs-title">Quick Facts</div>
+        <div class="rs-plain">Red wine &bull; 14.5% alcohol &bull; Drink now or hold until 2035 &bull; Napa Valley, California</div>
+      </div>
+      <div class="result-save">Save to Favorites</div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- =========== FAVORITES =========== -->
+  <div class="screen" id="favorites">
+    <div class="status-bar"><span>9:41</span><span style="letter-spacing:3px">&#9679;&#9679;&#9679;</span><span>100%</span></div>
+    <div class="fav-top">
+      <div class="fav-heading">Favorites</div>
+      <div class="fav-sub">Wines you've loved</div>
+    </div>
+    <div class="fav-stats">
+      <div class="cstat"><div class="cstat-num">8</div><div class="cstat-lbl">Saved</div></div>
+      <div class="cstat"><div class="cstat-num">92</div><div class="cstat-lbl">Avg Score</div></div>
+      <div class="cstat"><div class="cstat-num">3</div><div class="cstat-lbl">Regions</div></div>
+    </div>
+    <div class="fav-list">
+      <div class="fav-card"><div class="cc-icon cc-red">&#127863;</div><div class="cc-info"><div class="cc-name">Caymus Cabernet 2021</div><div class="cc-meta">Napa Valley · Red</div></div><div class="cc-right"><div class="cc-score">93</div><div class="cc-tag">Red</div></div></div>
+      <div class="fav-card"><div class="cc-icon cc-rose">&#127863;</div><div class="cc-info"><div class="cc-name">Whispering Angel Rosé 2022</div><div class="cc-meta">Provence · Rosé</div></div><div class="cc-right"><div class="cc-score">91</div><div class="cc-tag">Rosé</div></div></div>
+      <div class="fav-card"><div class="cc-icon cc-white">&#127863;</div><div class="cc-info"><div class="cc-name">Kim Crawford SB 2023</div><div class="cc-meta">Marlborough · White</div></div><div class="cc-right"><div class="cc-score">89</div><div class="cc-tag">White</div></div></div>
+      <div class="fav-card"><div class="cc-icon cc-red">&#127863;</div><div class="cc-info"><div class="cc-name">Silver Oak Alexander 2018</div><div class="cc-meta">Alexander Valley · Red</div></div><div class="cc-right"><div class="cc-score">94</div><div class="cc-tag">Red</div></div></div>
+      <div class="fav-card"><div class="cc-icon cc-white">&#127863;</div><div class="cc-info"><div class="cc-name">Sonoma-Cutrer Chardonnay</div><div class="cc-meta">Russian River · White</div></div><div class="cc-right"><div class="cc-score">90</div><div class="cc-tag">White</div></div></div>
+      <div style="height:8px"></div>
+    </div>
+    <div class="nav-bar">
+      <div class="nav-item" onclick="nav('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="nav('scan',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="4"/></svg><span>Scan</span></div>
+      <div class="nav-item active" onclick="nav('favorites',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>Favorites</span></div>
+      <div class="nav-item" onclick="nav('learn',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>Learn</span></div>
+    </div>
+  </div>
+
+  <!-- =========== LEARN =========== -->
+  <div class="screen" id="learn">
+    <div class="status-bar"><span>9:41</span><span style="letter-spacing:3px">&#9679;&#9679;&#9679;</span><span>100%</span></div>
+    <div class="learn-top">
+      <div class="learn-heading">Learn Wine</div>
+      <div class="learn-sub">No jargon. Just straight answers.</div>
+    </div>
+    <div class="learn-cards">
+      <div class="learn-card"><div class="lc-inner red-bg"><div class="lc-emoji">&#127863;</div><div class="lc-tag">Beginner</div><div class="lc-question">What do wine scores actually mean?</div><div class="lc-preview">90+ is great. 85–89 is solid. Below 85 is where we start to question things...</div></div></div>
+      <div class="learn-card"><div class="lc-inner sage-bg"><div class="lc-emoji">&#127869;</div><div class="lc-tag">Food Pairing</div><div class="lc-question">Why does wine taste different with food?</div><div class="lc-preview">Food changes how your taste buds perceive acidity, tannins, and sweetness...</div></div></div>
+      <div class="learn-card"><div class="lc-inner gold-bg"><div class="lc-emoji">&#128197;</div><div class="lc-tag">Buying</div><div class="lc-question">Does price actually matter?</div><div class="lc-preview">Between $15–$30, yes. After $50, you're often paying for prestige more than taste...</div></div></div>
+      <div class="learn-card"><div class="lc-inner blue-bg"><div class="lc-emoji">&#127757;</div><div class="lc-tag">Regions</div><div class="lc-question">Old World vs New World wine — what's the difference?</div><div class="lc-preview">Old World = Europe. New World = everywhere else. The styles taste quite different...</div></div></div>
+      <div style="height:8px"></div>
+    </div>
+    <div class="nav-bar">
+      <div class="nav-item" onclick="nav('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+      <div class="nav-item" onclick="nav('scan',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="4"/></svg><span>Scan</span></div>
+      <div class="nav-item" onclick="nav('favorites',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>Favorites</span></div>
+      <div class="nav-item active" onclick="nav('learn',this)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>Learn</span></div>
+    </div>
+  </div>
+
+</div>
+<script>
+  const modeData = {
+    single: { icon:'&#129863;', text:'<strong>Single bottle:</strong> Point at one label to get ratings, tasting notes, and food pairings.', hint:'Point at a <strong>wine label</strong><br>and tap the button below' },
+    collection: { icon:'&#127928;', text:'<strong>Collection scan:</strong> Show multiple bottles at once — we\'ll identify each one.', hint:'Show your <strong>full rack or group</strong><br>of bottles' },
+    list: { icon:'&#128203;', text:'<strong>Wine list:</strong> Hold up a restaurant wine list and we\'ll highlight the best picks.', hint:'Point at a <strong>printed wine list</strong><br>or menu page' }
+  };
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  function nav(id) { showScreen(id); }
+  function setMode(el, key) {
+    document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    const d = modeData[key];
+    document.getElementById('mode-info-text').innerHTML = d.text;
+    document.getElementById('mode-icon').innerHTML = d.icon;
+    document.getElementById('vf-hint').innerHTML = d.hint;
+  }
+  function showResult(name, meta, s1, s2, s3, badge, friendText) {
+    const avg = Math.round((+s1 + +s2 + +s3) / 3);
+    document.getElementById('result-name').textContent = name;
+    document.getElementById('result-meta').textContent = meta;
+    document.getElementById('result-score').textContent = avg;
+    document.getElementById('src1').textContent = s1;
+    document.getElementById('src2').textContent = s2;
+    document.getElementById('src3').textContent = s3;
+    document.getElementById('result-badge').textContent = badge;
+    document.getElementById('friend-text').textContent = '\u201c' + friendText + '\u201d';
+    showScreen('result');
+  }
+</script>
+</body>
+</html>
